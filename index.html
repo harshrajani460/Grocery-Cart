@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Grocery Cart</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="add-flow">
+        <div class="container">
+          <div class="container1">
+            <h1 class="item-heading" id="action-heading">Add Grocery Item</h1>
+            <div class="add-container">
+              <p class="inp-title">Item Name</p>
+              <input
+                type="text"
+                placeholder="Add Item Name"
+                class="inp-item"
+                id="inp-item"
+                value=""
+              />
+              <p class="inp-title">Quantity</p>
+              <input
+                type="number"
+                placeholder="Add Item Quantity"
+                class="inp-qt"
+                id="inp-qt"
+                value=""
+                required
+              />
+              <button id="add-btn" value="add-item">Add Item</button>
+            </div>
+          </div>
+          <div class="container2">
+            <h1 class="item-heading">Grocery List</h1>
+            <div class="add-container" id="list-item">
+              <p id="nothing">Nothing to Show!!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="src/index.js"></script>
+  </body>
+</html>
