@@ -22,6 +22,7 @@
                 class="inp-item"
                 id="inp-item"
                 value=""
+                oninput="inputChanged()"
               />
               <p class="inp-title">Quantity</p>
               <input
@@ -33,8 +34,9 @@
                 onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                 min="0"
                 required
+                oninput="inputChanged()"
               />
-              <button id="add-btn" value="add-item">Add Item</button>
+              <button id="add-btn" value="add-item" disabled>Add Item</button>
             </div>
           </div>
           <div class="container2">

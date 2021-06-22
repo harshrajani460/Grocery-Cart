@@ -1,12 +1,12 @@
 let currentEditedEle = "";
 let totalItem = 0;
-function initialRender() {
+function printItemFromLocalStorage() {
   let str = localStorage.getItem("groceryList");
   if (str != null) {
     let arr = JSON.parse(str);
     totalItem = arr.length;
     arr.forEach((element) => {
-      createFromLocalStorage(element);
+      createItem(element);
     });
   }
   if (totalItem === 0) {
@@ -14,31 +14,40 @@ function initialRender() {
     nothing.style.display = "block";
   }
 }
-function validateItemName(name) {
-  name = name.trim();
-  if (name.length > 0) return true;
-  return false;
-}
 
+function inputChanged() {
+  let name = document.getElementById("inp-item").value;
+  let quantity = document.getElementById("inp-qt").value;
+  name = name.trim();
+  quantity = quantity.trim();
+  if (name.length > 0 && quantity.length > 0) enableButton();
+  else disableButton();
+}
+function disableButton() {
+  let btn = (document.getElementById("add-btn").disabled = true);
+}
+function enableButton() {
+  let btn = (document.getElementById("add-btn").disabled = false);
+}
 function addItem(event) {
   let placeItemName = document.getElementById("inp-item");
   let placeQt = document.getElementById("inp-qt");
+
   if (placeQt.value === "") document.getElementById("inp-qt").value = "0";
   placeQt.value = Number(placeQt.value).toString();
+
   let newName = placeItemName.value.trim();
   document.getElementById("inp-item").value = newName;
-  if (!validateItemName(placeItemName.value)) {
-    return alert("Please Enter Name");
-  }
 
   if (event.target.value === "add-item") {
-    addItemTrue(event); //When Add workflow is on
+    addItemInAddWorkFlow(event); //When Add workflow is on
   } else {
     placeItemName.removeAttribute("readonly");
-    addItemFalse(event); //When Edit workflow is on
+    addItemInEditWorkFlow(event); //When Edit workflow is on
   }
+  disableButton();
 }
-function createFromLocalStorage(element) {
+function createItem(element) {
   let div = document.createElement("div");
   let innerdiv = document.createElement("div");
   let innerdiv1 = document.createElement("div");
@@ -51,7 +60,7 @@ function createFromLocalStorage(element) {
   btn2.innerText = "Delete";
 
   innerdiv1.innerText = element.name;
-  innerdiv2.innerText = "Qty. : " + element.qt;
+  innerdiv2.innerText = "x " + element.qt;
   div.classList.add("item");
   innerdiv.classList.add("item-text");
   innerdiv1.classList.add("item-text-1");
@@ -71,6 +80,7 @@ function createFromLocalStorage(element) {
   btn1.addEventListener("click", editItem);
   btn2.addEventListener("click", deleteItem);
 }
+
 function deleteFromLocalStorage(name) {
   let str = localStorage.getItem("groceryList");
   let arr = JSON.parse(str);
@@ -104,7 +114,7 @@ function isAlready(name) {
   }
   return available;
 }
-function updateQuantity(name, quantity) {
+function increamentQuantity(name, quantity) {
   let str = localStorage.getItem("groceryList");
   let arr = JSON.parse(str);
   let id = -1;
@@ -121,65 +131,33 @@ function updateQuantity(name, quantity) {
   localStorage.setItem("groceryList", JSON.stringify(newArr));
   let listitem = document.querySelectorAll(".item");
   listitem[id].childNodes[1].value = newqt;
-  listitem[id].childNodes[0].childNodes[1].innerText = "Qty. : " + newqt;
+  listitem[id].childNodes[0].childNodes[1].innerText = "x " + newqt;
   let olditemName = document.getElementById("inp-item");
   let oldquantity = document.getElementById("inp-qt");
   olditemName.value = "";
   oldquantity.value = "";
 }
-function addItemTrue() {
+function addItemInAddWorkFlow() {
   let itemName = document.getElementById("inp-item");
   let quantity = document.getElementById("inp-qt");
 
   if (isAlready(itemName.value) === true) {
-    updateQuantity(itemName.value, quantity.value);
+    increamentQuantity(itemName.value, quantity.value);
   } else {
     totalItem++;
     if (totalItem !== 0) {
       let nothing = document.getElementById("nothing");
       nothing.style.display = "none";
     }
-    let div = document.createElement("div");
-    let innerdiv = document.createElement("div");
-    let innerdiv1 = document.createElement("div");
-    let innerdiv2 = document.createElement("div");
-
-    let btn1 = document.createElement("button");
-    let btn2 = document.createElement("button");
-
-    btn1.innerText = "Edit";
-    btn1.value = quantity.value;
-    btn2.innerText = "Delete";
-
-    innerdiv1.innerText = itemName.value;
-    innerdiv2.innerText = "Qty. : " + quantity.value;
-
-    innerdiv1.classList.add("item-text-1");
-    innerdiv2.classList.add("item-text-2");
-    div.classList.add("item");
-    innerdiv.classList.add("item-text");
-    btn1.classList.add("item-edit");
-    btn2.classList.add("item-delete");
-
-    innerdiv.appendChild(innerdiv1);
-    innerdiv.appendChild(innerdiv2);
-
-    div.appendChild(innerdiv);
-    div.appendChild(btn1);
-    div.appendChild(btn2);
-    let obj = {
+    const element = {
       name: itemName.value,
       qt: quantity.value,
     };
+    createItem(element);
     itemName.value = "";
     quantity.value = "";
 
-    let listitem = document.getElementById("list-item");
-    listitem.appendChild(div);
-    btn1.addEventListener("click", editItem);
-    btn2.addEventListener("click", deleteItem);
-
-    addToLocalStorage(obj);
+    addToLocalStorage(element);
   }
 }
 function addToLocalStorage(obj) {
@@ -192,7 +170,7 @@ function addToLocalStorage(obj) {
   arr.push(obj);
   localStorage.setItem("groceryList", JSON.stringify(arr));
 }
-function addItemFalse() {
+function addItemInEditWorkFlow() {
   let placeItemName = document.getElementById("inp-item");
   let placeQuantity = document.getElementById("inp-qt");
   editFromLocalSorage(
@@ -206,7 +184,7 @@ function addItemFalse() {
 
   currentEditedEle.childNodes[0].childNodes[0].innerText = placeItemName.value;
   currentEditedEle.childNodes[0].childNodes[1].innerText =
-    "Qty. : " + placeQuantity.value;
+    "x " + placeQuantity.value;
   placeItemName.value = "";
 
   currentEditedEle.childNodes[1].value = placeQuantity.value;
@@ -218,6 +196,7 @@ function addItemFalse() {
   currentEditedEle = "";
 }
 function editItem(event) {
+  enableButton();
   let name = document.getElementById("action-heading");
   let placeItemName = document.getElementById("inp-item");
   placeItemName.setAttribute("readonly", true);
@@ -254,4 +233,4 @@ function deleteItem(event) {
 
 let btn = document.getElementById("add-btn");
 btn.addEventListener("click", addItem);
-initialRender();
+printItemFromLocalStorage();
