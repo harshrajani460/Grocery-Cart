@@ -31,8 +31,8 @@
                 class="inp-qt"
                 id="inp-qt"
                 value=""
-                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                min="0"
+                onkeypress='return ((event.charCode >= 49 && event.charCode <= 57) || (event.charCode===48 && value.trim()!==""))'
+                min="1"
                 required
                 oninput="inputChanged()"
               />
