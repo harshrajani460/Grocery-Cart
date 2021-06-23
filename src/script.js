@@ -178,10 +178,9 @@ let view = {
     }
   },
   inputChanged: function () {
-    this.name.value = this.name.value.trim();
-
+    let trimmedName = this.name.value.trim();
     if (Number(this.quantity.value) === 0) this.quantity.value = "";
-    if (this.name.value.length > 0 && this.quantity.value.length > 0)
+    if (trimmedName.length > 0 && this.quantity.value.length > 0)
       this.enableButton();
     else this.disableButton();
   },
