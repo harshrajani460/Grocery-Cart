@@ -142,7 +142,7 @@ let controller = {
   },
   editItem: function (event) {
     view.enableButton();
-    view.acticeEditWorkFlow(event);
+    view.activeEditWorkFlow(event);
     model.setCurrentEditedElement(event.target.parentNode);
   },
   deleteItem: function (event) {
@@ -194,7 +194,7 @@ let view = {
   deleteDOMelement: function (element) {
     element.remove();
   },
-  acticeEditWorkFlow: function (event) {
+  activeEditWorkFlow: function (event) {
     this.name.setAttribute("readonly", true);
     this.heading.innerText = "Edit Grocery Item";
 
