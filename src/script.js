@@ -1,23 +1,17 @@
 let model = {
   groceryList: [],
   currentEditedEle: "",
-  totalItem: 0,
+
   init: function () {
     let list = localStorage.getItem("groceryList");
     if (list !== null) {
       this.groceryList = JSON.parse(list);
     }
-    this.totalItem = this.groceryList.length;
   },
   setCurrentEditedElement: function (element) {
     this.currentEditedEle = element;
   },
-  incrementToalItem: function () {
-    this.totalItem++;
-  },
-  decreamentTotalItem: function () {
-    this.totalItem--;
-  },
+
   setItemList: function () {
     localStorage.setItem("groceryList", JSON.stringify(this.groceryList));
   },
@@ -49,20 +43,15 @@ let model = {
     this.setItemList();
   },
   increamentQuantityOfItem: function (name, quantity) {
-    let id = -1;
-    let newqt = 0;
     let newArr = model.groceryList.map((item, index) => {
       if (item.name === name) {
         let newQuantity = String(Number(item.qt) + Number(quantity));
-        id = index;
-        newqt = newQuantity;
         return { ...item, qt: newQuantity };
       }
       return item;
     });
     model.groceryList = newArr;
     model.setItemList();
-    return [id, newqt];
   },
   isAlready: function (name) {
     let available = false;
@@ -77,65 +66,45 @@ let controller = {
   init: function () {
     model.init();
     view.init();
-    view.printItemFromLocalStorage(model.groceryList);
+    view.renderList(model.groceryList);
   },
 
   increamentQuantity: function (name, quantity) {
-    const [id, newqt] = model.increamentQuantityOfItem(name, quantity);
-    view.increamentQuantityOfItem(id, newqt);
+    model.increamentQuantityOfItem(name, quantity);
+    view.renderList(model.groceryList);
+    view.clearForm();
   },
   addItemInAddWorkFlow: function () {
-    let itemName = document.getElementById("inp-item");
-    let quantity = document.getElementById("inp-qt");
-
-    if (model.isAlready(itemName.value) === true) {
-      this.increamentQuantity(itemName.value, quantity.value);
+    const element = view.getFormInput();
+    if (model.isAlready(element.name) === true) {
+      this.increamentQuantity(element.name, element.qt);
     } else {
-      model.incrementToalItem();
-      if (model.totalItem !== 0) {
-        view.removeEmptyMessage();
-      }
-      const element = {
-        name: itemName.value,
-        qt: quantity.value,
-      };
-      view.createItem(element);
-
       model.addItemToList(element);
-
+      view.renderList(model.groceryList);
       view.clearForm();
     }
   },
   addItemInEditWorkFlow: function () {
-    let name = document.getElementById("inp-item");
-    let quantity = document.getElementById("inp-qt");
+    const element = view.getFormInput();
     model.editItemList(
       model.currentEditedEle.childNodes[0].childNodes[0].innerText,
       model.currentEditedEle.childNodes[1].value,
-      name.value,
-      quantity.value
+      element.name,
+      element.qt
     );
-    model.currentEditedEle.childNodes[0].childNodes[0].innerText = name.value;
-    model.currentEditedEle.childNodes[0].childNodes[1].innerText =
-      "x " + quantity.value;
-    model.currentEditedEle.childNodes[1].value = quantity.value;
 
     view.activeAddWorkFlow();
+    view.renderList(model.groceryList);
+    view.clearForm();
     model.setCurrentEditedElement("");
   },
   addItem: function (event) {
-    let placeItemName = document.getElementById("inp-item");
-    let placeQt = document.getElementById("inp-qt");
-
-    placeQt.value = Number(placeQt.value).toString();
-
-    let newName = placeItemName.value.trim();
-    document.getElementById("inp-item").value = newName;
-
+    view.changeQuantityToNumber();
+    view.trimItemName();
     if (event.target.value === "add-item") {
       controller.addItemInAddWorkFlow(); //When Add workflow is on
     } else {
-      placeItemName.removeAttribute("readonly");
+      view.setInputReadOnly();
       controller.addItemInEditWorkFlow(); //When Edit workflow is on
     }
     view.disableButton();
@@ -147,13 +116,9 @@ let controller = {
   },
   deleteItem: function (event) {
     if (model.currentEditedEle !== event.target.parentNode) {
-      model.decreamentTotalItem();
       let parent = event.target.parentNode;
       model.deleteItemFromList(parent.childNodes[0].childNodes[0].innerText);
-      view.deleteDOMelement(parent);
-      if (model.totalItem === 0) {
-        view.showEmptyMessage();
-      }
+      view.renderList(model.groceryList);
     } else {
       alert("You can not delete item that are from Edit section.");
     }
@@ -169,12 +134,16 @@ let view = {
     this.itemarray = document.querySelectorAll(".item");
     this.btn.addEventListener("click", controller.addItem);
   },
-  printItemFromLocalStorage: function (arr) {
+  renderList: function (arr) {
+    let items = [];
     arr.forEach((element) => {
-      this.createItem(element);
+      items.push(this.createItem(element));
     });
+    this.listitem.innerHTML = "";
     if (arr.length === 0) {
       this.showEmptyMessage();
+    } else {
+      this.listitem.append(...items);
     }
   },
   inputChanged: function () {
@@ -190,9 +159,23 @@ let view = {
   enableButton: function () {
     this.btn.disabled = false;
   },
-  deleteDOMelement: function (element) {
-    element.remove();
+  getFormInput: function () {
+    return {
+      name: this.name.value,
+      qt: this.quantity.value,
+    };
   },
+
+  changeQuantityToNumber: function () {
+    this.quantity.value = Number(this.quantity.value);
+  },
+  trimItemName: function () {
+    this.name.value = this.name.value.trim();
+  },
+  setInputReadOnly: function () {
+    this.name.removeAttribute("readonly");
+  },
+
   activeEditWorkFlow: function (event) {
     this.name.setAttribute("readonly", true);
     this.heading.innerText = "Edit Grocery Item";
@@ -215,21 +198,12 @@ let view = {
     this.btn.value = "add-item";
     this.btn.innerText = "Add Item";
   },
-  increamentQuantityOfItem: function (id, newqt) {
-    let itemarray = document.querySelectorAll(".item");
-    itemarray[id].childNodes[1].value = newqt;
-    itemarray[id].childNodes[0].childNodes[1].innerText = "x " + newqt;
-    this.clearForm();
-  },
+
   showEmptyMessage: function () {
     let p = document.createElement("p");
     p.setAttribute("id", "nothing");
     p.innerText = "Nothing to Show!!";
     this.listitem.appendChild(p);
-  },
-  removeEmptyMessage: function () {
-    let nothing = document.getElementById("nothing");
-    if (nothing) nothing.remove();
   },
   clearForm: function () {
     this.name.value = "";
@@ -264,9 +238,9 @@ let view = {
     div.appendChild(btn1);
     div.appendChild(btn2);
 
-    this.listitem.appendChild(div);
     btn1.addEventListener("click", controller.editItem);
     btn2.addEventListener("click", controller.deleteItem);
+    return div;
   },
 };
 
