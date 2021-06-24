@@ -22,7 +22,7 @@
                 class="inp-item"
                 id="inp-item"
                 value=""
-                oninput="view.inputChanged()"
+                oninput="controller.inputChanged()"
               />
               <p class="inp-title">Quantity</p>
               <input
@@ -34,7 +34,7 @@
                 onkeypress='return ((event.charCode >= 49 && event.charCode <= 57) || (event.charCode===48 && value.trim()!==""))'
                 min="1"
                 required
-                oninput="view.inputChanged()"
+                oninput="controller.inputChanged()"
               />
               <button id="add-btn" value="add-item" disabled>Add Item</button>
             </div>

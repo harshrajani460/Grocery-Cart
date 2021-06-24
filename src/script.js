@@ -123,6 +123,13 @@ let controller = {
       alert("You can not delete item that are from Edit section.");
     }
   },
+  inputChanged: function () {
+    const element = view.getFormInput();
+    let trimmedName = element.name.trim();
+    if (Number(element.qt) === 0) view.clearQuantity();
+    if (trimmedName.length > 0 && element.qt.length > 0) view.enableButton();
+    else view.disableButton();
+  },
 };
 let view = {
   init: function () {
@@ -146,13 +153,7 @@ let view = {
       this.listitem.append(...items);
     }
   },
-  inputChanged: function () {
-    let trimmedName = this.name.value.trim();
-    if (Number(this.quantity.value) === 0) this.quantity.value = "";
-    if (trimmedName.length > 0 && this.quantity.value.length > 0)
-      this.enableButton();
-    else this.disableButton();
-  },
+
   disableButton: function () {
     this.btn.disabled = true;
   },
@@ -175,7 +176,9 @@ let view = {
   setInputReadOnly: function () {
     this.name.removeAttribute("readonly");
   },
-
+  clearQuantity: function () {
+    this.quantity.value = "";
+  },
   activeEditWorkFlow: function (event) {
     this.name.setAttribute("readonly", true);
     this.heading.innerText = "Edit Grocery Item";
