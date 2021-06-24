@@ -104,7 +104,6 @@ let controller = {
     if (event.target.value === "add-item") {
       controller.addItemInAddWorkFlow(); //When Add workflow is on
     } else {
-      view.setInputReadOnly();
       controller.addItemInEditWorkFlow(); //When Edit workflow is on
     }
     view.disableButton();
@@ -174,9 +173,6 @@ let view = {
   },
   trimItemName: function () {
     this.name.value = this.name.value.trim();
-  },
-  setInputReadOnly: function () {
-    this.name.removeAttribute("readonly");
   },
   clearQuantity: function () {
     this.quantity.value = "";
