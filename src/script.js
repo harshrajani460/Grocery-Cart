@@ -127,7 +127,9 @@ let controller = {
     const element = view.getFormInput();
     let trimmedName = element.name.trim();
     if (Number(element.qt) === 0) view.clearQuantity();
-    if (trimmedName.length > 0 && element.qt.length > 0) view.enableButton();
+
+    const newelement = view.getFormInput();
+    if (trimmedName.length > 0 && newelement.qt.length > 0) view.enableButton();
     else view.disableButton();
   },
 };
